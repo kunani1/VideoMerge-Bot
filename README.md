@@ -17,7 +17,7 @@ Just Press Below Button to Deploy!
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/AbirHasan2005/VideoMerge-Bot)
 
 ### Support Group:
-<a href="https://t.me/linux_repo"><img src="https://img.shields.io/badge/Telegram-Join%20Telegram%20Group-blue.svg?logo=telegram"></a>
+<a href="https://t.me/linux_repo"><img srhttps://github.com/kunanisai/VideoMerge-Botc="https://img.shields.io/badge/Telegram-Join%20Telegram%20Group-blue.svg?logo=telegram"></a>
 
 ### Video Tutorial:
 [![YouTube](https://img.shields.io/badge/YouTube-Video%20Tutorial-red?logo=youtube)](https://www.youtube.com/watch?v=m4r_SHySGYo)
