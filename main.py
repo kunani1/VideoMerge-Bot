@@ -13,8 +13,13 @@ import random
 import asyncio
 from PIL import Image
 from configs import Config
-from pyromod import listen
 from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery, InputMediaPhoto
+from pyrogram.errors import FloodWait, UserNotParticipant, MessageNotModified
+from pyrogram.raw.functions.messages import GetInlineBotResults
+from pyrogram.raw.types import InputBotInlineResultPhoto, InputBotInlineResultDocument
+from pyrogram.raw.types import InputBotInlineMessageText
+from pyrogram.raw import functions
 from helpers.markup_maker import MakeButtons
 from helpers.streamtape import UploadToStreamtape
 from helpers.clean import delete_all
@@ -30,18 +35,56 @@ from helpers.display_progress import progress_for_pyrogram, humanbytes
 from helpers.broadcast import broadcast_handler
 from helpers.ffmpeg import MergeVideo, generate_screen_shots, cult_small_video
 from asyncio.exceptions import TimeoutError
-from pyrogram.errors import FloodWait, UserNotParticipant, MessageNotModified
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery, InputMediaPhoto
 
 QueueDB = {}
 ReplyDB = {}
 FormtDB = {}
+
 NubBot = Client(
     session_name=Config.SESSION_NAME,
-    api_id=int(Config.API_ID),
+    api_id=Config.API_ID,
     api_hash=Config.API_HASH,
     bot_token=Config.BOT_TOKEN
 )
+
+@NubBot.on_message(filters.command(["start"]))
+async def start(bot, message):
+    # Start command handler
+    chat_id = message.chat.id
+    await bot.send_message(
+        chat_id,
+        "Hi! I'm a simple Telegram Videos Merge Bot. Send me some video files and I'll merge them for you!",
+    )
+
+# Add your other command handlers and filters here
+
+@NubBot.on_message(filters.video)
+async def process_video(bot, message):
+    # Video processing handler
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+    
+    if chat_id in ReplyDB and ReplyDB[chat_id] == user_id:
+        if message.video.file_size < Config.MAX_FILE_SIZE:
+            file_path = await message.video.download()
+            if chat_id in QueueDB:
+                QueueDB[chat_id].append(file_path)
+            else:
+                QueueDB[chat_id] = [file_path]
+                
+            await bot.send_message(chat_id, f"Video added to the merge queue.")
+        else:
+            await bot.send_message(chat_id, f"Video file size exceeds the allowed limit.")
+        ReplyDB.pop(chat_id)
+        
+    else:
+        await bot.send_message(chat_id, f"Send me the video as a reply to the /merge command.")
+
+# Add your other message handlers and filters here
+
+if __name__ == "__main__":
+    NubBot.run()
+
 
 
 @NubBot.on_message(filters.private & filters.command("start"))
